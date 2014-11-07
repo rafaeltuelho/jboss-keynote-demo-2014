@@ -5,7 +5,7 @@ This is an automated setup for running the JBoss Middleware Keynote demo from Su
 iPaaS infrastructure as provided on Openshift and will also setup to be run locally on your own JBoss Fuse and JBoss BPM Suite installation.
 
 It will obtain all tweets using hashtags #demoup or #demodown, route to A-MQ queue, where it will pull from A-MQ, query salesforce and possibly create a new process.
-tuelho
+tuelho 2
 
 Setup and configuration
 -----------------------
