@@ -14,24 +14,14 @@ import org.jboss.keynote2014.json.utils.JSONResponse;
 public class TwilioClient
 {
     // Login credentials
-    private static final String ACCOUNT_SID = "ACa0b2ffa434f526850c210ff275e92948";
-    private static final String AUTH_TOKEN = "fb5d0e5106b6844fc4feac0ce3fd1f40";
+    private static final String ACCOUNT_SID = "AC25e1a1ff2c73be43271d838d7a9fc4bf";
+    private static final String AUTH_TOKEN = "d84a5e200acc17c7d9edc3a473d1067c";
     // SMS send message endpoint
     private static final String ENDPOINT = "https://api.twilio.com/2010-04-01/Accounts/" + ACCOUNT_SID + "/Messages.json";
     // Twilio Mobile Numbers
-    private static final String[] MOBILE_NUMBERS = {
-        "+15105009629",
-        "+15105009641",
-        "+14157023103",
-        "+14157023104",
-        "+14157023116",
-        "+14157023118",
-        "+14157023129",
-        "+14157023130",
-        "+14157023133",
-        "+14157023153",
-    };
+    private static final String[] MOBILE_NUMBERS = { "+18559761671" };
     private static final int NUM_MOBILE_NUMBERS = MOBILE_NUMBERS.length;
+    private static final String MY_MOBILE_NUMBER = "+557181813636";
     
     // JSON keys
     private static final String TO = "To";
@@ -82,9 +72,10 @@ public class TwilioClient
         throws ClientProtocolException, IOException
     {
         final TwilioClient client = new TwilioClient();
-        final String[] text = { "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth" };
+//        final String[] text = { "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth" };
+        final String[] text = { "First", "Second" };
         for (int count = 0 ; count < text.length ; count++) {
-            if (client.sendSMS("4153356817", text[count] + " test message sent from all twilio numbers")) {
+            if (client.sendSMS(MY_MOBILE_NUMBER, text[count] + " test message sent from all twilio numbers")) {
                 System.out.println("Success");
             } else {
                 System.out.println("Failed to send SMS");

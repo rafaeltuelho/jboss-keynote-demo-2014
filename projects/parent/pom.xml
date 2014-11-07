@@ -1,3 +1,4 @@
+
 <?xml version="1.0"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -7,7 +8,8 @@
 
     <groupId>org.jboss.keynote2014</groupId>
     <artifactId>parent</artifactId>
-    <version>1.1.6</version>
+    <version>1.0-SNAPSHOT</version>
+    <!-- version>1.1.6</version -->
     <packaging>pom</packaging>
     <name>Keynote 2014 parent pom</name>
     <description>Keynote 2014 parent pom</description>

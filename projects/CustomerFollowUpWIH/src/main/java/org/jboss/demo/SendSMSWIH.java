@@ -35,17 +35,17 @@ public class SendSMSWIH implements WorkItemHandler {
                     String name = getValueFromObject(customer, "Name");  // Hack to avoid classloading issues (probably fixed now)
                     String phone = getValueFromObject(customer, "Phone"); // Hack to avoid classloading issues (probably fixed now)
 
-                    SMSRecord record = new SMSRecord();
-                    record.setUserName(name);
-                    record.setProcessInstanceId(wi.getProcessInstanceId());
-
-                    //JpaPersistenceContextManager jpaContextManager = (JpaPersistenceContextManager) kSession.getEnvironment().get(EnvironmentName.PERSISTENCE_CONTEXT_MANAGER);
-                    //EntityManager em = jpaContextManager.getApplicationScopedEntityManager();
-
-                    //em.merge(record);
-
-                    // see that the ID of the user was set by Hibernate
-                    System.out.println("SMS Created record: " + record);
+////                    SMSRecord record = new SMSRecord();
+////                    record.setUserName(name);
+////                    record.setProcessInstanceId(wi.getProcessInstanceId());
+////
+////                    JpaPersistenceContextManager jpaContextManager = (JpaPersistenceContextManager) kSession.getEnvironment().get(EnvironmentName.PERSISTENCE_CONTEXT_MANAGER);
+////                    EntityManager em = jpaContextManager.getApplicationScopedEntityManager();
+////
+////                    em.merge(record);
+//
+//                    // see that the ID of the user was set by Hibernate
+//                    System.out.println("SMS Created record: " + record);
 
                     // Send SMS to customer
                     //
@@ -53,8 +53,8 @@ public class SendSMSWIH implements WorkItemHandler {
 
                     try {
                         String message = DEFAULT_SMS_MESSAGE;
-                        if (wi.getParameter("message") != null && wi.getParameter("message").toString().trim().length() > 1) {
-                            message = wi.getParameter("message").toString().trim();
+                        if (wi.getParameter("Message") != null && wi.getParameter("Message").toString().trim().length() > 1) {
+                            message = wi.getParameter("Message").toString().trim();
                         }
                         message = message.replaceAll("#PID#", String.valueOf(wi.getProcessInstanceId()));
                         //System.out.println("Message: " + message);

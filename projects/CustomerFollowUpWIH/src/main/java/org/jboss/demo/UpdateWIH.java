@@ -29,15 +29,15 @@ public class UpdateWIH implements WorkItemHandler {
             System.out.println("Deleting record");
             WorkflowProcessInstance processInstance = (WorkflowProcessInstance) kSession.getProcessInstance(wi.getProcessInstanceId());
             if (processInstance != null) {
-                JpaPersistenceContextManager jpaContextManager = (JpaPersistenceContextManager) kSession.getEnvironment().get(EnvironmentName.PERSISTENCE_CONTEXT_MANAGER);
-                EntityManager em = jpaContextManager.getApplicationScopedEntityManager();
-
-                Query query = em.createQuery(
-                        "DELETE FROM SMSRecord r WHERE r.processInstanceId = :id");
-                int deletedCount = query.setParameter("id", processInstance.getId()).executeUpdate();
-
-                // see that the ID of the user was set by Hibernate
-                System.out.println("SMS Deleted: " + deletedCount);
+//                JpaPersistenceContextManager jpaContextManager = (JpaPersistenceContextManager) kSession.getEnvironment().get(EnvironmentName.PERSISTENCE_CONTEXT_MANAGER);
+//                EntityManager em = jpaContextManager.getApplicationScopedEntityManager();
+//
+//                Query query = em.createQuery(
+//                        "DELETE FROM SMSRecord r WHERE r.processInstanceId = :id");
+//                int deletedCount = query.setParameter("id", processInstance.getId()).executeUpdate();
+//
+//                // see that the ID of the user was set by Hibernate
+//                System.out.println("SMS Deleted: " + deletedCount);
             }
         } catch (Exception e) {
             /// If failed let the process continue

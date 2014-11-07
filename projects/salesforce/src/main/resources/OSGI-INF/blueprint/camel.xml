@@ -10,13 +10,18 @@
 
   <cm:property-placeholder id="salesforceConfig" persistent-id="jboss.keynote2014.salesforce"/>
 
-  <bean id="salesforceBean" class="org.jboss.keynote2014.salesforce.Salesforce"> 
-    <property name="salesforce" value="${tweet.salesforce}"/>
-    <property name="screenName" value="${tweet.screenName}"/>
-    <property name="email" value="${tweet.email}"/>
-    <property name="mobilePhone" value="${tweet.mobilePhone}"/>
-    <property name="dbTrue" value="${db.true}"/>
-    <property name="dbFalse" value="${db.false}"/>
+  <bean id="salesforceLoginConfig" class="org.apache.camel.component.salesforce.SalesforceLoginConfig">
+	<property name="loginUrl" value="${loginUrl}"/>
+	<property name="clientId" value="${clientId}"/>
+	<property name="clientSecret" value="${clientSecret}"/>
+	<property name="userName" value="${userName}"/>
+	<property name="password" value="${password}"/>
+	<property name="lazyLogin" value="${lazyLogin}"/>
+  </bean>
+
+  <bean id="salesforce" class="org.apache.camel.component.salesforce.SalesforceComponent">
+	<property name="loginConfig" ref="salesforceLoginConfig" />
+	<property name="packages" value="org.jboss.keynote.salesforce.dto"/>
   </bean>
 
   <bean id="bpmnBean" class="org.jboss.keynote2014.salesforce.InvokeBPMN">
@@ -29,80 +34,36 @@
     <property name="dbTrue" value="${db.true}"/>
   </bean>
   
-  <cxf:rsServer id="rsServer" address="/route"
-              serviceClass="org.jboss.keynote.endpoints.QueryRestfulService"/>
+  <bean id="SObjectQueryResultProcessor" class="org.jboss.keynote.processors.SObjectQueryResultProcessor" />
   
-  <bean id="TwitterProcessor" class="org.jboss.keynote2014.salesforce.TwitterProcessor" />
-  <bean id="contactQueryProcessor" class="org.jboss.keynote.processors.ContactProcessor" >
-  	<property name="email" value="${salesforce.email}"/>
-  	<property name="mobilePhone" value="${salesforce.mobilePhone}"/>
-  	<property name="firstName" value="${salesforce.firstName}"/>
-  	<property name="lastName" value="${salesforce.lastName}"/>
-  	<property name="dept" value="${salesforce.dept}"/>
-  </bean>
-  
-  <camelContext id="keynote2014-salesforce" errorHandlerRef="myDLC" xmlns="http://camel.apache.org/schema/blueprint">
-
+  <camelContext errorHandlerRef="myDLC" id="keynote2014-salesforce" xmlns="http://camel.apache.org/schema/blueprint">
     <propertyPlaceholder location="blueprint:salesforceConfig" id="properties"/>
-
-    <errorHandler id="myDLC"
-                  type="DeadLetterChannel"
-                  deadLetterUri="amq:queue:tweets.DLQ"
-                  useOriginalMessage="true">
-      <redeliveryPolicy logHandled="true" maximumRedeliveries="5" redeliveryDelay="1000"/>
+    <errorHandler type="DeadLetterChannel" deadLetterUri="amq:queue:tweets.DLQ" useOriginalMessage="true" id="myDLC">
+        <redeliveryPolicy maximumRedeliveries="5" redeliveryDelay="1000" logHandled="true"/>
     </errorHandler>
-    
     <dataFormats>
-    	<json id="jack" library="Jackson"/>
-        <json id="twitterpojo" library="Jackson" unmarshalTypeName="org.jboss.keynote2014.salesforce.model.TwitterPojo"/>
-        <json id="jackUser" library="Jackson" unmarshalTypeName="org.jboss.keynote.model.User" />
+        <json library="Jackson" id="jack"/>
+        <json library="Jackson" unmarshalTypeName="org.jboss.keynote2014.salesforce.model.TwitterPojo" id="twitterpojo"/>
+        <json library="Jackson" unmarshalTypeName="org.jboss.keynote.model.User" id="jackUser"/>
     </dataFormats>
-    
-    <route id="salesforce">
-      <from uri="amq:queue:tweets?concurrentConsumers=1"/>
-      <log message="### Received tweet ${body}"/>
-      <unmarshal ref="twitterpojo"/>
-	  <log message="Get after twitterpojojson ${body.text} -- Version three"/>
-	  <log message="Get after twitterpojojson BODYID ${body.id} -- Version three"/>
-	  <to uri="bean:bpmnBean?method=setTwitterData"/>
-      <to uri="bean:TwitterProcessor"/>
-	  <setHeader headerName="CamelHttpMethod">
-      	<constant>GET</constant>
-      </setHeader>
-      <setHeader headerName="CamelCxfRsUsingHttpAPI">
-         <constant>True</constant>        
-       </setHeader>
-      <log message="Request headers to cxfrs ${headers}  "/>
-      <recipientList>
-      	<simple>http://localhost:8183/cxf/route/queryservice/contact/${body}</simple>
-      </recipientList>
-      <unmarshal ref="jackUser"/>
-      <log message="Response back from cxfrs ${body}  "/>
-      <log message="Inserting into database"/>
-      <to uri="mybatis:insertUser?statementType=Insert"/>
-      <log message="BODY after insert DB ${body}"/>
-      <log message="Checking BPMN"/>
-      <to uri="bean:bpmnBean?method=process"/>
-      <to uri="bean:bpmnBean?method=setTwitterDBData"/>
-      <log message="Twitter data into DB ${body}  "/>
-      <to uri="mybatis:insert?statementType=Insert"/>
+    <route customId="true" id="salesforce">
+        <from uri="amq:queue:tweets?concurrentConsumers=1"/>
+        <log message="### Received tweet ${body}"/>
+        <unmarshal ref="twitterpojo"/>
+        <to uri="bean:bpmnBean?method=setTwitterData"/>
+        <log message="Try to search the user on Sales Force: ${body.screenName} "/>
+        <recipientList delimiter="|">
+            <simple>salesforce://query?sObjectQuery=SELECT Id, AccountId, FirstName, LastName, Email, MobilePhone, Department from Contact where Department='${body.screenName}' &amp;sObjectClass=org.jboss.keynote.salesforce.dto.QueryRecordsContact</simple>
+        </recipientList>
+        <log message="Response from salesforce: ${body}"/>
+        <process ref="SObjectQueryResultProcessor"/>
+        <log message="Sales force User model: ${body}"/>
+        <log message="Checking BPMN..."/>
+        <to uri="bean:bpmnBean?method=process"/>
+        <to uri="bean:bpmnBean?method=setTwitterDBData"/>
+        <log message="Twitter data into DB ${body}  "/>
+        <to uri="mybatis:insertTweet?statementType=Insert"/>
     </route>
-    
-    <!-- route starts from the Restful cxf webservice -->	
-	<route id="queryRSRoute">			
-		<from uri="cxfrs:bean:rsServer" />
-		<log message="paramter: ${body}" />
-		<process ref="contactQueryProcessor"/>
-		<setHeader headerName="CamelCxfRsUsingHttpAPI">
-			<constant>TRUE</constant>        
-		</setHeader>
-		<setHeader headerName="Accept">
-			<constant>application/json</constant>        
-		</setHeader>			
-		<marshal ref="jack"/>
-		<log message="user ${body}" />
-	</route>
-
-  </camelContext>
+</camelContext>
 
 </blueprint>

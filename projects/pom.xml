@@ -7,7 +7,8 @@
 
     <groupId>org.jboss.keynote2014</groupId>
     <artifactId>root</artifactId>
-    <version>1.1.6</version>
+    <version>1.0-SNAPSHOT</version>
+    <!-- version>1.0-SNAPSHOT</version -->
     <packaging>pom</packaging>
     <name>Keynote 2014 root pom</name>
     <description>Keynote 2014 root pom</description>

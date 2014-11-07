@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jboss.keynote2014</groupId>
     <artifactId>parent</artifactId>
-    <version>1.1.6</version>
+    <version>1.0-SNAPSHOT</version>
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
 
@@ -20,13 +20,22 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <fabric8.parentProfiles>feature-camel</fabric8.parentProfiles>
-    <fabric8.profile>keynote-salesforce</fabric8.profile>
-    <fabric8.bundles>wrap:mvn:com.h2database/h2/1.4.178 mvn:commons-pool/commons-pool/1.6 mvn:commons-dbcp/commons-dbcp/1.4</fabric8.bundles>
-    <fabric8.features>war camel-cxf cxf camel-http camel-http4 camel-mybatis camel-jackson camel-twitter mq-fabric-camel</fabric8.features>
+    <fabric8.profile>keynote-salesforce-integration-profile</fabric8.profile>
+    <!-- fabric8.profileVersion>1.6</fabric8.profileVersion -->
+    <fabric8.bundles>wrap:mvn:org.mariadb.jdbc/mariadb-java-client/1.1.7 mvn:commons-pool/commons-pool/1.6 mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/1.1.4c_7</fabric8.bundles>
+    <fabric8.features>camel-cxf camel-http4 camel-mybatis camel-jackson camel-xstream camel-twitter mq-fabric-camel camel-salesforce</fabric8.features>
     <fabric8.featureRepos>mvn:org.apache.camel.karaf/apache-camel/${version:camel}/xml/features</fabric8.featureRepos>
   </properties>
 
   <dependencies>
+     <dependency>
+         <groupId>org.apache.camel</groupId>
+         <artifactId>camel-core</artifactId>
+         <!-- version>${camel.version}</version -->
+         <version>2.12.0.redhat-610387</version>
+         <scope>system</scope>
+         <systemPath>/home/rsoares/opt/FUSE/jboss-fuse-6.1.0.redhat-379/system/org/apache/camel/camel-core/2.12.0.redhat-610387/camel-core-2.12.0.redhat-610387.jar</systemPath>
+     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-blueprint</artifactId>
@@ -42,6 +51,16 @@
 	    <artifactId>camel-cxf</artifactId>
 	    <scope>provided</scope>	
 	</dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>1.9.13</version>
+        </dependency>
+    <dependency>
+	    <groupId>org.apache.camel</groupId>
+	    <artifactId>camel-xstream</artifactId>
+	    <version>2.12.0.redhat-610379</version>
+	</dependency>
     <dependency>
       <groupId>org.apache.servicemix.bundles</groupId>
       <artifactId>org.apache.servicemix.bundles.twitter4j</artifactId>
@@ -50,17 +69,51 @@
     <dependency>
       <groupId>org.jboss.keynote2014</groupId>
       <artifactId>json</artifactId>
+      <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
 	    <groupId>com.h2database</groupId>
 	    <artifactId>h2</artifactId>
 	    <version>1.4.178</version>
 	</dependency>
+    <dependency>
+        <groupId>org.mariadb.jdbc</groupId>
+        <artifactId>mariadb-java-client</artifactId>
+        <version>1.1.7</version>
+    </dependency>	
+    <dependency>
+    	<groupId>org.apache.camel</groupId>
+    	<artifactId>camel-salesforce</artifactId>
+        <!-- version>${camel.version}</version -->
+        <version>2.12.0.redhat-610387</version>
+        <scope>system</scope>
+        <systemPath>/home/rsoares/workshops/brms-bpms/jboss-keynote-demo-2014-master/target/jboss-fuse-6.1.0.redhat-379/system/org/apache/camel/camel-salesforce/2.12.0.redhat-610387/camel-salesforce-2.12.0.redhat-610387.jar</systemPath>
+	</dependency>
+    <dependency>
+        <groupId>joda-time</groupId>
+        <artifactId>joda-time</artifactId>
+        <version>2.1</version>
+    </dependency>
+     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.7.5</version>
+    </dependency>   
+    <dependency>
+      <groupId>org.apache.servicemix.bundles</groupId>
+      <artifactId>org.apache.servicemix.bundles.xstream</artifactId>
+      <version>1.4.2_1</version>
+    </dependency>
   </dependencies>
-
  
   <build>
     <finalName>salesforce</finalName>
+    <defaultGoal>install</defaultGoal>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Camel Salesforce - Camel Salesforce Brown bag</title>
+
+		<meta name="description" content="A component for easily integrating with Salesforce">
+		<meta name="author" content="Dhiraj Bokde">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Camel Salesforce</h1>
+					<h3>Camel Salesforce Component and Maven Plugin</h3>
+					<p>
+						<small>Created by <a href="dbokde@redhat.com">Dhiraj Bokde</a> / <a href="http://twitter.com/dhirajsb">@dhirajsb</a></small>
+					</p>
+				</section>
+
+				<section>
+					<h2>Two for the price of One!</h2>
+					<p>
+						Two part solution consisting of...
+					</p>
+					<ol>
+						<li>Camel Salesforce maven plugin - generates DTOs for Salesforce Objects (SObjects). Optional for non-DTO approach, e.g. using raw XML or JSON strings, or CSV/XML for batch operations. 
+						<li>Camel Salesforce component - runtime communication with Salesforce.</li>
+					</ol>
+				</section>
+
+				<section>
+					<h2>Camel Salesforce Maven Plugin</h2>
+					<ul>
+						<li>Generates DTOs from Salesforce Objects for system and user defined objects using name patterns</li>
+						<li>DTOs use Jackson for JSON, XStream for XML, and Joda for DateTime support</li>
+						<li>Supports <strong>ALL</strong> Salesforce data types</li>
+						<li>Generates Query result classes, enumerations for Salesforce picklists</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Maven Plugin Configuration</h2>
+					<p>
+						Sensitive properties like client id should be passed on the command line or read using maven properties plugin. 
+					</p>
+					<ul style="font-size: 20px">
+						<li>camelSalesforce.clientId - Salesforce client Id for Remote API access</li>
+						<li>camelSalesforce.clientSecret - Salesforce client secret for Remote API access</li>
+						<li>camelSalesforce.userName - Salesforce account user name</li>
+						<li>camelSalesforce.password - Salesforce account password (including secret token)</li>
+						<li>camelSalesforce.version - Salesforce Rest API version, defaults to 25.0</li>
+						<li>camelSalesforce.outputDirectory - Directory where to place generated DTOs, defaults to ${project.build.directory}/generated-sources/camel-salesforce</li>
+						<li>camelSalesforce.includes - List of SObject types to include</li>
+						<li>camelSalesforce.excludes - List of SObject types to exclude</li>
+						<li>camelSalesforce.includePattern - Java RegEx for SObject types to include</li>
+						<li>camelSalesforce.excludePattern - Java RegEx for SObject types to exclude</li>
+						<li>camelSalesforce.packageName - Java package name for generated DTOs, defaults to org.apache.camel.salesforce.dto.</li>
+					</ul>
+					</section>
+				</section>
+
+				<section>
+					<h2>Generate DTOs</h2>
+					<p>
+						Generate DTOs using the command...
+					</p>
+					<pre><code data-trim style="font-size: 18px; margin-top: 20px;">
+mvn camel-salesforce:generate \
+	-DclientId=&lt;clientid&gt; -DclientSecret=&lt;clientsecret&gt; \
+	-DuserName=&lt;username&gt; -Dpassword=&lt;password&gt;
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Camel Salesforce Component</h2>
+					<ul>
+						<li>Uses Jetty async API and CometD to connect to Salesforce.</li>
+						<li>Manages OAuth session token and automatic session (lazy) login/refresh.</li>
+						<li>Handles marshaling/un-marhaling Salesforce RESTish messages, and conversion to from XML/JSON to DTOs</li>
+						<li>Supports Salesforce REST, BULK and Streaming APIs</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Salesforce component configuration</h2>
+					<p>
+						Configure a component instance by setting the following properties... 
+					</p>
+					<ul> 
+						<li>httpClient - optional Jetty HttpClient for connection settings</li>
+						<li>packages - optional String array of package names to scan for SObject DTO classes</li>
+						<li>endpointConfig - optional default endpoint properties in an org.apache.camel.component.salesforce.SalesforceEndpointConfig object</li>
+						<li><strong>loginConfig</strong> - required org.apache.camel.component.salesforce.SalesforceLoginConfig object with properties...</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Salesforce login config properties</h2>
+					<ul>
+						<li>loginUrl - optional Salesforce login URL</li>
+						<li>clientId - Salesforce client id</li>
+						<li>clientSecret - Salesforce client secret</li>
+						<li>userName - Salesforce user name</li>
+						<li>password - Salesforce user password</li>
+						<li>lazyLogin - boolean flag to permit lazy login (default false)</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Using the REST API</h2>
+					<p>
+						Producer Endpoints follow the convention...
+					</p>
+					<pre><code data-trim style="font-size: 18px; margin-top: 20px;">
+						...to("salesforce:&lt;api-name&gt;?&lt;options&gt;")...
+					</code></pre>
+					<ul>
+						<li>Options can be specified in the endpoint or as message header properties.</li>
+						<li>Some APIs that have a <strong>primary</strong> option/parameter can use in Body as the value.</li>
+						<li>The result is either a DTO, or a String if SObject name and class is not specified.</li>
+						<li>API name is one of getVersions, getResources, getGlobalObjects, getBasicInfo, getDescription, getSObject, createSObject, updateSObject, deleteSObject, getSObjectWithId, upsertSObject, deleteSObjectWithId, query, queryMore, or search</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>REST API Options</h2>
+					<ul>
+						<li>format - XML or JSON, doesn't usually matter, unless using String bodies (default JSON)</li>
+						<li>sObjectName - Salesforce object name, e.g. Merchandise__c</li>
+						<li>sObjectId - Salesforce object id</li>
+						<li>sObjectFields - List of field names for a particular SObject</li>
+						<li>sObjectIdName - Salesforce external Id field name</li>
+						<li>sObjectIdValue - External Id field value</li>
+						<li>sObjectBlobFieldName - Blob field name for blob APIs</li>
+						<li>sObjectClass - SObject DTO class name, e.g. org.apache.camel.component.salesforce.internal.dto.QueryRecordsPushTopic</li>
+						<li>sObjectQuery - Salesforce SOQL statement</li>
+						<li>sObjectSearch - Salesforce SOSL statement</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Using the Bulk API</h2>
+					<ul>
+						<li>Used to query, insert, update, upsert, or delete a large number of records asynchronously in batches</li>
+						<li>Requires creation of a Job, which describes the operation, and one or more Batches which represent the bulk request and response</li>
+						<li>Typically this would be used with an external data store (database) for co-ordinating submission of batches, and tracking status. </li>
+						<li>API name is one of: createJob, getJob, closeJob, abortJob, createBatch, getBatch, getAllBatches, getRequest, getResults, createBatchQuery, getQueryResultIds, getQueryResult 
+					</ul>
+				</section>
+
+				<section>
+					<h2>Bulk API Options</h2>
+					<ul>
+						<li>contentType - batch data format, one of XML, CSV, ZIP_XML, ZIP_CSV</li>
+						<li>jobId - Salesforce Job Id</li>
+						<li>batchId - Salesfore Batch Id</li>
+						<li>resultId - Salesforce Result Id</li>
+					</p>
+				</section>
+
+				<section>
+					<h2>Using the Streaming API</h2>
+					<p>
+						Consumer endpoints follow the convention below. If the sObjectName or sObjectClass options are not set, the result is a java.util.Map. 
+					</p>
+					<pre><code data-trim style="font-size: 18px; margin-top: 20px;">
+						...from("salesforce:&lt;topic-name&gt;?&lt;options&gt;")...
+					</code></pre>
+					<ul>
+						<li>Uses the CometD library for receiving notifications from Saleforce Push Topics</li>
+						<li>Topics are named topics with an associated SOQL query and information about when the notification should be generated (create/update)</li>
+						<li>Note that Salesforce does not guarantee notification delivery, so this should be used where they can be lost</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Streaming API Options</h2>
+					<ul>
+						<li>sObjectQuery - Salesforce SOQL statement</li>
+						<li>sObjectName - Salesforce object name, e.g. Merchandise__c</li>
+						<li>sObjectClass - SObject DTO class name, e.g. org.apache.camel.component.salesforce.internal.dto.QueryRecordsPushTopic</li>
+						<li>updateTopic -  true if an existing Push topic should be updated</li>
+						<li>notifyForFields - one of Select, Where, Referenced, All</li>
+						<li>notifyForOperations - one of Create, Update, All</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Troubleshooting</h2>
+					<ul>
+						<li>Login properties may be incorrect</li>
+						<li>Salesforce limits number of API invocations, administrators assign quotas, accounts can get locked</li>
+						<li>Incorrect DTO type being sent or expected</li>
+						<li>Property names on endpoints or in headers are not correct</li>
+						<li>Salesforce API version is set using the option <code>apiVersion</code>, defaults to 27.0, user may only lower the value</li>
+					</p>
+				</section>
+
+				<section>
+					<h1>THE END</h1>
+					<h2>Questions?</h2>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

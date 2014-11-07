@@ -53,11 +53,11 @@ public class InvokeBPMN{
     		this.screenName = twitter.getScreenName();
     		this.id = twitter.getId();
     		
-    		twitterData.put("id", this.id);   		
-    		twitterData.put("text", this.text);
+    		twitterData.put("id", twitter.getId());   		
+    		twitterData.put("text", twitter.getText());
     		twitterData.put("tag", twitter.getTag());
     		twitterData.put("date", twitter.getDate());
-    		twitterData.put("screenName", this.screenName);
+    		twitterData.put("screenName", twitter.getScreenName());
     		twitterData.put("name", twitter.getName());
         }
     }
@@ -68,8 +68,6 @@ public class InvokeBPMN{
     
     }
     
-    
-
     public void process(final Exchange exchange) throws IOException, XMLStreamException{
     	
         final Message message = exchange.getIn();

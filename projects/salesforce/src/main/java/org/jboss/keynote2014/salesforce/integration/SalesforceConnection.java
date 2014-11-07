@@ -20,10 +20,16 @@ public class SalesforceConnection
     // REST API path
     private static final String REST_API_PATH = "/services/data/v29.0";
     // Login credentials
-    private static final String CLIENT_ID = "3MVG98RqVesxRgQ4YVRH2I7LC4WQLGNrrM15E.Ker1wEbuAQgntaPWOULipv9V6geqrEWoDdtuiU5mwRJGEWw";
-    private static final String CLIENT_SECRET = "9153398612327264512";
-    private static final String USERNAME = "kconner@redhat.com.demo";
-    private static final String PASSWORD = "dFH4rm9LZg";
+//    private static final String CLIENT_ID = "3MVG98RqVesxRgQ4YVRH2I7LC4WQLGNrrM15E.Ker1wEbuAQgntaPWOULipv9V6geqrEWoDdtuiU5mwRJGEWw";
+//    private static final String CLIENT_SECRET = "9153398612327264512";
+//    private static final String USERNAME = "kconner@redhat.com.demo";
+//    private static final String PASSWORD = "dFH4rm9LZg";
+
+    private static final String CLIENT_ID = "3MVG9xOCXq4ID1uFeLKfXnHjywC6BUYdGwb09n1qD8j3qzUr8GvinIZPmJfveAH_WE409Wbm7oaUQ.cp4gXIH";
+    private static final String CLIENT_SECRET = "5688533744427487886";
+
+    private static final String USERNAME = "rsoares@redhat.com.demo";
+    private static final String PASSWORD = "Tuelho@SF.2014TQc2MXveavsHmkqJxZtsz3qD";
     
     // JSON keys
     private static final String INSTANCE_URL = "instance_url";

@@ -24,6 +24,7 @@
 
         <!-- fabric8 deploy profile configuration -->
         <fabric8.parentProfiles>feature-camel</fabric8.parentProfiles>
+        <fabric8.profileVersion>1.0</fabric8.profileVersion>
         <fabric8.profile>keynote-twitter-stream</fabric8.profile>
         <fabric8.features>camel-twitter camel-jackson mq-fabric-camel</fabric8.features>
         <fabric8.featureRepos>mvn:org.apache.camel.karaf/apache-camel/${version:camel}/xml/features</fabric8.featureRepos>
