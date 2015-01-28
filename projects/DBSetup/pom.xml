@@ -225,7 +225,7 @@
 		    <skip>${maven.test.skip}</skip>
 -->
 		    <driver>org.mariadb.jdbc.Driver</driver>
-		    <url>jdbc:mariadb://127.0.0.1:3306/BPMS</url>
+		    <url>jdbc:mariadb://192.168.122.65:3306/BPMS</url>
 		    <username>bpmsuite</username>
 		    <password>bpmsuite</password>
 		    <autocommit>true</autocommit>
